@@ -2,8 +2,10 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
 const port = 3000
-const db = require('./queries')
+// const db = require('./queries')
+const db = require('./dataSelectedAdapter');
 
+db.initDB();
 // Set up the server usage, with json parsing
 // Basic Express server usage
 app.use(bodyParser.json())
@@ -21,11 +23,11 @@ app.get('/', (request, response) => {
 })
 
 // Basic server endpoints
-app.get('/classes', db.getClasses);
-app.get('/classes/:id', db.getClassById)
-app.post('/classes', db.createClass)
-app.put('/classes/:id', db.updateClass)
-app.delete('/classes/:id', db.deleteClass)
+app.get('/classes', db.getDBClassesQuery);
+app.get('/classes/:id', db.getDBClassByIdQuery())
+app.post('/classes', db.createDBClassQuery())
+app.put('/classes/:id', db.updateDBClassQuery())
+app.delete('/classes/:id', db.deleteDBClassQuery())
 
 // Send data by listening on port
 app.listen(port, () => {
