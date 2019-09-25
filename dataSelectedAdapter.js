@@ -1,5 +1,6 @@
 const Pool = require('pg').Pool;
 const DataClassBuilder = require('./dataClassBuilder');
+const { classNameIs, priceIsLowerThan, groupIsBiggerThan } = require('./Specification');
 
 const DataBase = new (function() {
   const single = this;
@@ -41,12 +42,13 @@ const DataBase = new (function() {
 
 // POST a new class
   this.createDBClassQuery = (request, response) => {
+    console.log(request.url, request.body);
     const {id, class_name, students_amount, location, partner, lesson_date, price} = request.body
     this.pool.query('INSERT INTO classes (id, class_name, students_amount, location, partner, lesson_date, price) VALUES ($1, $2, $3, $4, $5, $6, $7)', [id, class_name, students_amount, location, partner, lesson_date, price], (error, results) => {
       if(error) {
-        throw error
+        throw error;
       }
-      response.status(200).send(`Class added with ID: ${result.insertId}`)
+      response.status(200).send(`Class added with ID: ${id}`)
     })
   }
 
@@ -71,6 +73,31 @@ const DataBase = new (function() {
       }
       response.status(200).send(`User deleted with ID: ${id}`)
     })
+  }
+
+  this.getFilteredClasses = (request, response) => {
+    const class_name = request.params.class_name;
+    const st_amount = parseInt(request.params.st_amount);
+    const pr = parseInt(request.params.pr);
+    let classNameIsObj = new classNameIs(class_name);
+    let groupIsBiggerThanObj = new groupIsBiggerThan(st_amount);
+    let priceIsLowerThanObj = new priceIsLowerThan(pr);
+    this.pool.query('SELECT * FROM classes ORDER BY id ASC', (error, results) => {
+      if (error) throw error;
+      responseRows = [];
+      results.rows.forEach((row, index) => {
+        classNameIsObj
+        .and(groupIsBiggerThanObj)
+        .and(priceIsLowerThanObj)
+        .isSatisfiedBy(row, (err, satisfies) => {
+          if (err) throw err;
+          if (satisfies) responseRows.push(row);
+        });
+      });
+      console.log(class_name, st_amount, pr);
+      console.log(responseRows);
+      response.status(200).json(responseRows);
+    });
   }
 
   return function() { return single; };

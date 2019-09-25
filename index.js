@@ -15,9 +15,8 @@ db.initDB();
 app.use(bodyParser.json())
 app.use(
   bodyParser.urlencoded({
-    extended: true,
-  })
-)
+    extended: false
+}));
 
 // Basic request data sending - tell a route to look for GET request on / and send answer
 app.get('/', (request, response) => {
@@ -32,6 +31,7 @@ app.get('/classes/:id', db.getDBClassByIdQuery);
 app.post('/classes', db.createDBClassQuery);
 app.put('/classes/:id', db.updateDBClassQuery);
 app.delete('/classes/:id', db.deleteDBClassQuery);
+app.get('/classes/:class_name/:st_amount/:pr', db.getFilteredClasses);
 
 // Send data by listening on port
 app.listen(port, () => {

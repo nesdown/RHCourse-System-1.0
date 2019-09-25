@@ -10,6 +10,20 @@ class DataClass {
     this.lesson_date = builder.lesson_date;
     this.price = builder.price;
   }
+
+  toString() {/*
+    let str = '';
+    for (let key in this) {
+      str += `&${key}=` + this[key];
+    }
+    str = str.slice(1, str.length);
+    return str;*/
+    let str = {};
+    for (let key in this) {
+      str[key] = this[key];
+    }
+    return str;
+  }
 }
 
 module.exports = DataClass;

@@ -1,6 +1,6 @@
 'use strict';
 
-const dataClass = require('./dataClass');
+const DataClass = require('./dataClass');
 
 class DataClassBuilder {
   constructor() {}
