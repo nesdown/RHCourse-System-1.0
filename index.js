@@ -3,7 +3,11 @@ const bodyParser = require('body-parser')
 const app = express()
 const port = 3000
 // const db = require('./queries')
-const db = require('./dataSelectedAdapter');
+const DataBase = require('./dataSelectedAdapter');
+
+const db = new DataBase();
+const db2 = new DataBase();
+console.log(db === db2, 'true is for singleton');
 
 db.initDB();
 // Set up the server usage, with json parsing
@@ -11,9 +15,8 @@ db.initDB();
 app.use(bodyParser.json())
 app.use(
   bodyParser.urlencoded({
-    extended: true,
-  })
-)
+    extended: false
+}));
 
 // Basic request data sending - tell a route to look for GET request on / and send answer
 app.get('/', (request, response) => {
@@ -24,10 +27,11 @@ app.get('/', (request, response) => {
 
 // Basic server endpoints
 app.get('/classes', db.getDBClassesQuery);
-app.get('/classes/:id', db.getDBClassByIdQuery())
-app.post('/classes', db.createDBClassQuery())
-app.put('/classes/:id', db.updateDBClassQuery())
-app.delete('/classes/:id', db.deleteDBClassQuery())
+app.get('/classes/:id', db.getDBClassByIdQuery);
+app.post('/classes', db.createDBClassQuery);
+app.put('/classes/:id', db.updateDBClassQuery);
+app.delete('/classes/:id', db.deleteDBClassQuery);
+app.get('/classes/:class_name/:st_amount/:pr', db.getFilteredClasses);
 
 // Send data by listening on port
 app.listen(port, () => {
