@@ -9,6 +9,13 @@ const db = new DataBase();
 const db2 = new DataBase();
 console.log(db === db2, 'true is for singleton');
 
+const HandlerBuilder = require('./handlerBuilder')
+const handlerBuilder = new HandlerBuilder();
+const handlerBuilder2 = new HandlerBuilder();
+console.log(handlerBuilder === handlerBuilder2, "True is for Singleton Builder.")
+
+const ServiceHandler = require('./serviceHandler');
+
 db.initDB();
 // Set up the server usage, with json parsing
 // Basic Express server usage
@@ -32,6 +39,11 @@ app.post('/classes', db.createDBClassQuery);
 app.put('/classes/:id', db.updateDBClassQuery);
 app.delete('/classes/:id', db.deleteDBClassQuery);
 app.get('/classes/:class_name/:st_amount/:pr', db.getFilteredClasses);
+
+// Test serviceHandler response
+serviceHandler = new ServiceHandler(handlerBuilder);
+let dataGot = serviceHandler.fetchData();
+serviceHandler.outputFormatter(dataGot);
 
 // Send data by listening on port
 app.listen(port, () => {
