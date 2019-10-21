@@ -4,10 +4,17 @@ const app = express()
 const port = 3000
 // const db = require('./queries')
 const DataBase = require('./dataSelectedAdapter');
-
+const HandlerBuilder = require('./handlerBuilder');
+const ServiceHandler = require('./serviceHandler');
 const db = new DataBase();
 const db2 = new DataBase();
 console.log(db === db2, 'true is for singleton');
+
+const handlerBuilder = new HandlerBuilder();
+const serviceHandler = new ServiceHandler();
+
+const data = serviceHandler.fetchData();
+serviceHandler.outputFormatter(data);
 
 db.initDB();
 // Set up the server usage, with json parsing
