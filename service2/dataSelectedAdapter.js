@@ -14,25 +14,30 @@ const DataBase = new (function() {
     })
   }
 
+  this.getTable = async(tableName) => {
+    return new Promise((resolve, reject) => {
+      this.pool.query(`SELECT * FROM ${tableName} ORDER BY id ASC`, (error, results) => {
+        if (error) reject(error);
+        resolve(results.rows);
+      });
+    });
+  }
+
 // GET all classes query
-  this.getDBClassesQuery = (request, response) => {
-    this.pool.query('SELECT * FROM classes ORDER BY id ASC', (error, results) => {
-      if(error) {
-        throw error
-      }
-      response.status(200).json(results.rows)
-    })
+  this.getDBClassesQuery = async(request, response) => {
+    const allClasses = await this.getTable('classes');
+    console.log('GET request');
+    response.status(200).json(allClasses)
   }
 
 // GET single class by id
   this.getDetailsById = (request, response) => {
-    console.log(request.params);
     const id = parseInt(request.params.id)
-    console.log(id);
     this.pool.query('SELECT * FROM classes WHERE id = $1', [id], (error, results) => {
       if (error) {
         throw error
       }
+      console.log('GET request full info by id');
       response.status(200).json(results.rows);
     })
   }
@@ -40,12 +45,12 @@ const DataBase = new (function() {
 // POST a new class
   this.createDBClassQuery = (request, response) => {
     console.log(request.url, request.body);
-    const {id, class_name, students_amount, location, partner, lesson_date, price} = request.body
-    this.pool.query('INSERT INTO classes (id, class_name, students_amount, location, partner, lesson_date, price) VALUES ($1, $2, $3, $4, $5, $6, $7)', [id, class_name, students_amount, location, partner, lesson_date, price], (error, results) => {
+    const {class_name, students_amount, location, partner, lesson_date, price} = request.body;
+    this.pool.query('INSERT INTO classes (class_name, students_amount, location, partner, lesson_date, price) VALUES ($1, $2, $3, $4, $5, $6)', [class_name, students_amount, location, partner, lesson_date, price], (error, results) => {
       if(error) {
         throw error;
       }
-      response.status(200).send(`Class added with ID: ${id}`)
+      response.status(200).send(results)
     })
   }
 
@@ -79,7 +84,7 @@ const DataBase = new (function() {
       results.rows.forEach((row, index) => {
         responseRows.push({ class_name: row.class_name, price: row.price });
       });
-      console.log(responseRows);
+      console.log('GET request price-list');
       response.status(200).json(responseRows);
     });
   }

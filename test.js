@@ -3,7 +3,7 @@
 const request = require('request');
 const DataClassBuilder = require('./dataClassBuilder');
 
-let dataClass = new DataClassBuilder().add_id(6)
+let dataClass = new DataClassBuilder().add_id(10)
                                       .add_class_name("Course1")
                                       .add_location("STR2")
                                       .add_students_amount(6)
@@ -13,7 +13,7 @@ let dataClass = new DataClassBuilder().add_id(6)
 console.log(dataClass.toString());
 
 request.post({
-  url: "http://127.0.0.1:3000/classes",
+  url: "http://127.0.0.1:3000/",
   form: {
     id: dataClass.id,
     class_name: dataClass.class_name,

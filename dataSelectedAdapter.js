@@ -1,5 +1,6 @@
 const Pool = require('pg').Pool;
 const DataClassBuilder = require('./dataClassBuilder');
+const Network = require('./network.js');
 const { classNameIs, priceIsLowerThan, groupIsBiggerThan } = require('./Specification');
 
 const DataBase = new (function() {
@@ -12,43 +13,70 @@ const DataBase = new (function() {
       database: 'class_tickets',
       password: 'pass',
       port: 5432
-    })
+    });
+  }
+
+  this.getTable = async(tableName) => {
+    return new Promise((resolve, reject) => {
+      this.pool.query(`SELECT * FROM ${tableName} ORDER BY id ASC`, (error, results) => {
+        if (error) reject(error);
+        resolve(results.rows);
+      });
+    });
+  }
+
+  this.getAllProvidersClasses = async() => {
+    const network = new Network();
+    let allClasses = [];
+    let providers = await this.getTable('providers');
+    let currClasses = await this.getTable('classes');
+    currClasses.forEach((item) => {
+      let newItem = {};
+      for (let key in item) {
+        newItem[key] = item[key];
+      }
+      newItem.provider = 'current';
+      allClasses.push(newItem);
+    });
+    for (let providerRow of providers) {
+      let providerClasses = await network.asyncRequest(providerRow.url);
+      providerClasses = JSON.parse(providerClasses);
+      for (let item of providerClasses) {
+        let newItem = {};
+        for (let key in item) {
+          newItem[key] = item[key];
+        }
+        newItem.provider = providerRow.name;
+        allClasses.push(newItem);
+      }
+    }
+    return allClasses;
   }
 
 // GET all classes query
-  this.getDBClassesQuery = (request, response) => {
-    this.pool.query('SELECT * FROM classes ORDER BY id ASC', (error, results) => {
-      if(error) {
-        throw error
-      }
-      console.log(results);
-      response.status(200).json(results.rows)
-    })
+  this.getDBClassesQuery = async(request, response) => {
+    const allClasses = await this.getAllProvidersClasses();
+    console.log('GET request');
+    response.status(200).json(allClasses);
   }
 
 // GET single class by id
-  this.getDBClassByIdQuery = (request, response) => {
-    console.log(request.params);
+  this.getDBClassByIdQuery = async(request, response) => {
     const id = parseInt(request.params.id)
-    console.log(id);
-    this.pool.query('SELECT * FROM classes WHERE id = $1', [id], (error, results) => {
-      if (error) {
-        throw error
-      }
-      console.log(results);
-      response.status(200).json(results.rows);
-    })
+    console.log('GET request by id', id);
+    const allClasses = await this.getAllProvidersClasses();
+    response.status(200).json(allClasses[id - 1]);
   }
 
 // POST a new class
   this.createDBClassQuery = (request, response) => {
     console.log(request.url, request.body);
-    const {id, class_name, students_amount, location, partner, lesson_date, price} = request.body
-    this.pool.query('INSERT INTO classes (id, class_name, students_amount, location, partner, lesson_date, price) VALUES ($1, $2, $3, $4, $5, $6, $7)', [id, class_name, students_amount, location, partner, lesson_date, price], (error, results) => {
+    const {class_name, students_amount, location, partner, lesson_date, price} = request.body;
+    this.pool.query('INSERT INTO classes (class_name, students_amount, location, partner, lesson_date, price) VALUES ($1, $2, $3, $4, $5, $6)', [class_name, students_amount, location, partner, lesson_date, price], (error, results) => {
       if(error) {
         throw error;
       }
-      response.status(200).send(`Class added with ID: ${id}`)
+      response.status(200).send(results);
     })
   }
 
@@ -75,28 +103,33 @@ const DataBase = new (function() {
     })
   }
 
-  this.getFilteredClasses = (request, response) => {
+  this.getFilteredClasses = async(request, response) => {
+    const allClasses = await this.getAllProvidersClasses();
     const class_name = request.params.class_name;
     const st_amount = parseInt(request.params.st_amount);
     const pr = parseInt(request.params.pr);
     let classNameIsObj = new classNameIs(class_name);
     let groupIsBiggerThanObj = new groupIsBiggerThan(st_amount);
     let priceIsLowerThanObj = new priceIsLowerThan(pr);
-    this.pool.query('SELECT * FROM classes ORDER BY id ASC', (error, results) => {
-      if (error) throw error;
-      responseRows = [];
-      results.rows.forEach((row, index) => {
-        classNameIsObj
-        .and(groupIsBiggerThanObj)
-        .and(priceIsLowerThanObj)
-        .isSatisfiedBy(row, (err, satisfies) => {
-          if (err) throw err;
-          if (satisfies) responseRows.push(row);
-        });
+    responseRows = [];
+    allClasses.forEach((row, index) => {
+      classNameIsObj
+      .and(groupIsBiggerThanObj)
+      .and(priceIsLowerThanObj)
+      .isSatisfiedBy(row, (err, satisfies) => {
+        if (err) throw err;
+        if (satisfies) responseRows.push(row);
       });
-      console.log(class_name, st_amount, pr);
-      console.log(responseRows);
-      response.status(200).json(responseRows);
+    });
+    console.log('GET request by filters');
+    response.status(200).json(responseRows);
+  }
+
+  this.addProvider = (request, response) => {
+    let { name, url } = request.body;
+    this.pool.query('INSERT INTO providers (name, url) VALUES ($1, $2)', [name, url], (error, results) => {
+      if (error) throw error;
+      response.status(200).send('OK' + results);
     });
   }
 

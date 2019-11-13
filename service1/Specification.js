@@ -89,7 +89,6 @@ function classNameIs(class_name) {
 }
 classNameIs.prototype = Object.create(Specification);
 classNameIs.prototype.isSatisfiedBy = function(dataClass, cb) {
-  console.log(dataClass.class_name, this.class_name);
   return cb(null, dataClass.class_name === this.class_name);
 };
 
@@ -98,7 +97,6 @@ function priceIsLowerThan(price) {
 }
 priceIsLowerThan.prototype = Object.create(Specification);
 priceIsLowerThan.prototype.isSatisfiedBy = function(dataClass, cb) {
-  console.log(dataClass.price, this.price);
   return cb(null, dataClass.price < this.price);
 };
 
@@ -107,7 +105,6 @@ function groupIsBiggerThan(students_amount) {
 }
 groupIsBiggerThan.prototype = Object.create(Specification);
 groupIsBiggerThan.prototype.isSatisfiedBy = function(dataClass, cb) {
-  console.log(dataClass.students_amount, this.students_amount);
   return cb(null, dataClass.students_amount > this.students_amount);
 };
 
