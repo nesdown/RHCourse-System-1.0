@@ -5,6 +5,7 @@ const DataBase = new (function() {
   const single = this;
 
   this.initDB = () => {
+    this.cache = {};
     this.pool = new Pool({
       user: 'postgres',
       host: 'localhost',
@@ -18,6 +19,7 @@ const DataBase = new (function() {
     return new Promise((resolve, reject) => {
       this.pool.query(`SELECT * FROM ${tableName} ORDER BY id ASC`, (error, results) => {
         if (error) reject(error);
+        console.log('Hello from db');
         resolve(results.rows);
       });
     });
@@ -25,9 +27,20 @@ const DataBase = new (function() {
 
 // GET all classes query
   this.getDBClassesQuery = async(request, response) => {
-    const allClasses = await this.getTable('classes');
+    let page = request.params.page;
+    let responseClasses = [];
+    if (!this.cache.allClasses || !page) {
+      const allClasses = await this.getTable('classes');
+      this.cache.allClasses = allClasses;
+      page = 1;
+    }
+    let allClasses = this.cache.allClasses;
+    let i = 5000 * (page - 1);
+    while (i < 5000 * page) {
+      responseClasses.push(allClasses[i++]);
+    }
     console.log('GET request');
-    response.status(200).json(allClasses)
+    response.status(200).json(responseClasses);
   }
 
 // GET single class by id
@@ -44,7 +57,6 @@ const DataBase = new (function() {
 
 // POST a new class
   this.createDBClassQuery = (request, response) => {
-    console.log(request.url, request.body);
     const {class_name, students_amount, location, partner, lesson_date, price} = request.body;
     this.pool.query('INSERT INTO classes (class_name, students_amount, location, partner, lesson_date, price) VALUES ($1, $2, $3, $4, $5, $6)', [class_name, students_amount, location, partner, lesson_date, price], (error, results) => {
       if(error) {

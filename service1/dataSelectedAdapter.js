@@ -43,7 +43,10 @@ const DataBase = new (function() {
   this.getDBClassesQuery = async(request, response) => {
     const allClasses = await this.getTable('classes');
     console.log('GET request');
-    response.status(200).json(allClasses)
+    setTimeout(() => {
+      console.log('response sent');
+      response.status(200).json(allClasses);
+    }, 10000);
   }
 
 // GET single class by id
@@ -109,7 +112,10 @@ const DataBase = new (function() {
         });
       });
       console.log('GET request by name');
-      response.status(200).json(responseRows);
+      setTimeout(() => {
+        console.log('response sent');
+        response.status(200).json(responseRows);
+      }, 11000);
     });
   }
 

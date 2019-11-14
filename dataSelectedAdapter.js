@@ -55,9 +55,15 @@ const DataBase = new (function() {
 
 // GET all classes query
   this.getDBClassesQuery = async(request, response) => {
+    const page = request.params.page;
     const allClasses = await this.getAllProvidersClasses();
+    let i = 1000 * (page - 1);
+    let responseClasses = [];
+    while (i < 1000 * page) {
+      responseClasses.push(allClasses[i++]);
+    }
     console.log('GET request');
-    response.status(200).json(allClasses);
+    response.status(200).json(responseClasses);
   }
 
 // GET single class by id
@@ -70,7 +76,6 @@ const DataBase = new (function() {
 
 // POST a new class
   this.createDBClassQuery = (request, response) => {
-    console.log(request.url, request.body);
     const {class_name, students_amount, location, partner, lesson_date, price} = request.body;
     this.pool.query('INSERT INTO classes (class_name, students_amount, location, partner, lesson_date, price) VALUES ($1, $2, $3, $4, $5, $6)', [class_name, students_amount, location, partner, lesson_date, price], (error, results) => {
       if(error) {

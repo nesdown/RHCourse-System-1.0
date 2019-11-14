@@ -32,6 +32,7 @@ app.post('/classes', db.createDBClassQuery);
 app.put('/classes/:id', db.updateDBClassQuery);
 app.delete('/classes/:id', db.deleteDBClassQuery);
 app.get('/price-list', db.getPriceList);
+app.get('/classes/:page', db.getDBClassesQuery);
 
 // Send data by listening on port
 app.listen(port, () => {

@@ -29,13 +29,13 @@ app.get('/', (request, response) => {
 
 // Basic server endpoints
 app.get('/classes', db.getDBClassesQuery);
-app.get('/classes/:id', db.getDBClassByIdQuery);
+app.get('/class/:id', db.getDBClassByIdQuery);
 app.post('/classes', db.createDBClassQuery);
 app.put('/classes/:id', db.updateDBClassQuery);
 app.delete('/classes/:id', db.deleteDBClassQuery);
 app.get('/classes/:class_name/:st_amount/:pr', db.getFilteredClasses);
 app.post('/provider', db.addProvider);
-
+app.get('/classes/:page', db.getDBClassesQuery);
 
 // Send data by listening on port
 app.listen(port, () => {
