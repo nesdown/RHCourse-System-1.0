@@ -1,0 +1,32 @@
+[
+    {
+        "name": "name",
+        "values": [
+            "Software Engineering",
+            "Hardware Engineering",
+            "Data Science",
+            "Artificial Intelligence",
+            "Ethical Hacking"
+        ]
+    },
+    {
+        "name": "partner",
+        "values": [
+            "SoftServe",
+            "KFC",
+            "GlobalLogic",
+            "Microsoft",
+            "Google"
+        ]
+    },
+    {
+        "name": "location",
+        "values": [
+            "Yangelia, 20",
+            "Politechnichna, 18",
+            "Vyborzka, 1",
+            "Poliana",
+            "Poliova 3"
+        ]
+    }
+]

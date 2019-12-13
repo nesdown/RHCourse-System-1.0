@@ -1,0 +1,36 @@
+{
+  "name": "RH-CourseSystem",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./bin/server.js",
+    "dev": "nodemon ./bin/server.js",
+    "clean": "rm -rf dist .cache",
+    "addForm": "npm run clean && parcel frontend/src/course.html",
+    "deleteForm": "npm run clean && parcel frontend/src/deleteCourse.html",
+    "updateForm": "npm run clean && parcel frontend/src/updateCourse.html",
+    "front": "npm run clean && parcel frontend/src/course.html && parcel frontend/src/deleteCourse.html && parcel frontend/src/updateCourse.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "nodemon": "^1.19.4",
+    "parcel": "^1.12.4"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "pg": "^7.12.1",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "request": "^2.88.0"
+  }
+}
