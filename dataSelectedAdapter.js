@@ -55,8 +55,9 @@ const DataBase = new (function() {
 
 // GET all classes query
   this.getDBClassesQuery = async(request, response) => {
-    const page = request.params.page;
+    let page = request.params.page;
     const allClasses = await this.getAllProvidersClasses();
+    if (!page) page = 1;
     let i = 1000 * (page - 1);
     let responseClasses = [];
     while (i < 1000 * page) {
